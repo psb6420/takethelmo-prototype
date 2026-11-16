@@ -16,7 +16,7 @@ import { history, isAdmin, profiles, uid, type Incident } from "./model";
 import { pushNotification, useDemo } from "./Store";
 import { saveFile } from "./files";
 export function Incidents() {
-  const { state, update, notify } = useDemo();
+  const { state, update, notify, storageScope } = useDemo();
   const [creating, setCreating] = useState(false);
   const [file, setFile] = useState<File>();
   const [busy, setBusy] = useState(false);
@@ -68,7 +68,7 @@ export function Incidents() {
               }
               setBusy(true);
               try {
-                const attachment = file ? await saveFile(file) : undefined;
+                const attachment = file ? await saveFile(file, storageScope) : undefined;
                 const item: Incident = {
                   id: `INC-${uid().slice(0, 8)}`,
                   title,

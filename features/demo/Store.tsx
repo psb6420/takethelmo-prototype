@@ -10,7 +10,10 @@ import {
   type History,
 } from "./model";
 export const STORAGE_KEY = "takethelmo:frontend-demo:v1";
+type LocalUser = { id: string; name: string; email: string };
 type Context = {
+  user: LocalUser;
+  storageScope: string;
   state: DemoState;
   update: (
     change: (state: DemoState) => DemoState,
@@ -152,7 +155,9 @@ function validState(value: unknown): value is DemoState {
     )
   );
 }
-export function DemoProvider({ children }: { children: React.ReactNode }) {
+export function DemoProvider({ children, user }: { children: React.ReactNode; user: LocalUser }) {
+  const storageScope = user.id;
+  const storageKey = `${STORAGE_KEY}:user:${user.id}`;
   const [state, setState] = useState<DemoState>(createSeed);
   const current = useRef(state);
   const [ready, setReady] = useState(false);
@@ -164,7 +169,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
   }
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(storageKey);
       if (raw) {
         const stored: unknown = JSON.parse(raw);
         if (!validState(stored)) throw new Error("invalid");
@@ -179,7 +184,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
     }
     setReady(true);
     const sync = (event: StorageEvent) => {
-      if (event.key === STORAGE_KEY && event.newValue) {
+      if (event.key === storageKey && event.newValue) {
         try {
           const value: unknown = JSON.parse(event.newValue);
           if (validState(value)) {
@@ -193,11 +198,11 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
     };
     window.addEventListener("storage", sync);
     return () => window.removeEventListener("storage", sync);
-  }, []);
+  }, [storageKey]);
   function update(change: (state: DemoState) => DemoState, message?: string) {
     try {
       const next = change(current.current);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      localStorage.setItem(storageKey, JSON.stringify(next));
       current.current = next;
       setState(next);
       if (message) notify(message);
@@ -215,6 +220,8 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
   return (
     <DemoContext.Provider
       value={{
+        user,
+        storageScope,
         state,
         update,
         notify,

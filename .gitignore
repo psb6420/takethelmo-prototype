@@ -16,3 +16,8 @@ test-results
 playwright-report
 output/
 coverage/
+data/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*

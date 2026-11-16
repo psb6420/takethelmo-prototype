@@ -1,8 +1,8 @@
 import type { FileRef } from "./model";
 const DB = "takethelmo-demo-files-v1";
-async function openFiles() {
+async function openFiles(scope: string) {
   return new Promise<IDBDatabase>((resolve, reject) => {
-    const request = indexedDB.open(DB, 1);
+    const request = indexedDB.open(`${DB}:user:${scope}`, 1);
     request.onupgradeneeded = () => request.result.createObjectStore("files");
     request.onsuccess = () => resolve(request.result);
     request.onerror = () =>
@@ -19,9 +19,9 @@ export function validateFile(file: File) {
   if (!file.size || file.size > 5 * 1024 * 1024)
     throw new Error("비어 있지 않은 5MB 이하 파일을 선택해 주세요.");
 }
-export async function saveFile(file: File): Promise<FileRef> {
+export async function saveFile(file: File, scope: string): Promise<FileRef> {
   validateFile(file);
-  const db = await openFiles();
+  const db = await openFiles(scope);
   const id = crypto.randomUUID();
   try {
     await new Promise<void>((resolve, reject) => {
@@ -38,8 +38,8 @@ export async function saveFile(file: File): Promise<FileRef> {
     db.close();
   }
 }
-export async function downloadFile(file: FileRef) {
-  const db = await openFiles();
+export async function downloadFile(file: FileRef, scope: string) {
+  const db = await openFiles(scope);
   try {
     const blob = await new Promise<Blob | undefined>((resolve, reject) => {
       const request = db.transaction("files").objectStore("files").get(file.id);
@@ -66,8 +66,8 @@ export function downloadBlob(blob: Blob, name: string) {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-export async function clearFiles() {
-  const db = await openFiles();
+export async function clearFiles(scope: string) {
+  const db = await openFiles(scope);
   try {
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction("files", "readwrite");

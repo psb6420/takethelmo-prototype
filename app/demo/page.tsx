@@ -1,4 +1,6 @@
 import { Home } from "@/features/demo/Home";
-export default function DemoPage() {
+import { requireLocalUser } from "@/features/local-auth/session";
+export default async function DemoPage() {
+  await requireLocalUser();
   return <Home />;
 }

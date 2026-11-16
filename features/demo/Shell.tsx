@@ -120,7 +120,8 @@ export const demoNav = [
   },
 ];
 export function DemoShell({ children }: { children: React.ReactNode }) {
-  const { state, update, reset, notify } = useDemo();
+  const { state, update, reset, notify, user, storageScope } = useDemo();
+  const [loggingOut, setLoggingOut] = useState(false);
   const path = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -189,7 +190,7 @@ export function DemoShell({ children }: { children: React.ReactNode }) {
               return;
             setResetting(true);
             try {
-              if (reset()) await clearFiles();
+              if (reset()) await clearFiles(storageScope);
             } catch (e) {
               notify((e as Error).message, true);
             } finally {
@@ -275,7 +276,16 @@ export function DemoShell({ children }: { children: React.ReactNode }) {
                 taketheLMO
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="max-w-40 truncate text-sm" title={user.email}><span className="block text-xs text-gray-500">로그인 계정</span><strong>{user.name}</strong></div>
+              <Button variant="outline" disabled={loggingOut} onClick={async () => {
+                setLoggingOut(true);
+                try {
+                  const response = await fetch("/api/prototype-auth/logout", { method: "POST" });
+                  if (!response.ok) throw new Error("로그아웃하지 못했습니다. 다시 시도해 주세요.");
+                  window.location.assign("/prototype-login");
+                } catch { notify("로그아웃하지 못했습니다. 다시 시도해 주세요.", true); setLoggingOut(false); }
+              }}>{loggingOut ? "로그아웃 중…" : "로그아웃"}</Button>
               <Link
                 href="/demo/notifications"
                 aria-label={`알림 ${unread}개`}

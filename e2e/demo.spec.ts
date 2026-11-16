@@ -1,3 +1,5 @@
+import { registerLocalUser } from "./local-auth-helper";
+test.beforeEach(async ({ page }) => { await registerLocalUser(page); });
 import { expect, test, type Page } from "@playwright/test";
 const png = {
   name: "demo-evidence.png",
@@ -239,12 +241,12 @@ test("알림 읽음 상태 저장", async ({ page }) => {
   await expect(page.getByRole("button", { name: "모두 읽음" })).toBeDisabled();
 });
 test("잘못된 저장 데이터를 안내하고 복구", async ({ page }) => {
-  await page.addInitScript(() =>
-    localStorage.setItem(
-      "takethelmo:frontend-demo:v1",
-      '{"version":1,"role":"missing"}',
-    ),
-  );
+  await page.goto("/demo");
+  await page.getByLabel("체험 역할 전환").selectOption("lmo_manager");
+  await page.evaluate(() => {
+    const key = Object.keys(localStorage).find(k => k.startsWith("takethelmo:frontend-demo:v1:user:"))!;
+    localStorage.setItem(key, '{"version":1,"role":"missing"}');
+  });
   await page.goto("/demo");
   await expect(
     page.getByRole("heading", { name: "나의 안전 현황", exact: true }),

@@ -1,3 +1,4 @@
+import { requireLocalUser } from "@/features/local-auth/session";
 import { notFound } from "next/navigation";
 import {
   SearchPage,
@@ -21,6 +22,7 @@ export default async function DemoSection({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { section } = await params;
+  await requireLocalUser(`/demo/${section}`);
   const query = await searchParams;
   switch (section) {
     case "search":

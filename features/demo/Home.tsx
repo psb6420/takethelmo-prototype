@@ -15,7 +15,7 @@ import { documents } from "./data";
 import { Badge, Empty, Panel } from "@/components/ui/DemoUI";
 import { ButtonLink } from "@/components/ui/Button";
 export function Home() {
-  const { state } = useDemo();
+  const { state, user } = useDemo();
   const profile = profiles[state.role];
   const done = state.courses.filter((c) =>
     state.enrollments.some(
@@ -51,7 +51,7 @@ export function Home() {
             MY LAB, MY SAFETY
           </p>
           <h2 className="text-xl font-semibold sm:text-2xl">
-            {profile.name}님, 오늘도 안전한 연구를 시작해요.
+            {user.name}님, 오늘도 안전한 연구를 시작해요.
           </h2>
           <p className="mt-3 text-sm leading-6 text-brand-100">
             {profile.scope} · {profile.label}

@@ -79,7 +79,7 @@ export function Training() {
   );
 }
 function CourseCard({ course }: { course: Course }) {
-  const { state, update, notify } = useDemo();
+  const { state, update, notify, storageScope } = useDemo();
   const [file, setFile] = useState<File>();
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
@@ -157,7 +157,7 @@ function CourseCard({ course }: { course: Course }) {
             const owner = state.role;
             setBusy(true);
             try {
-              const attachment = await saveFile(file);
+              const attachment = await saveFile(file, storageScope);
               if (
                 update(
                   (s) =>

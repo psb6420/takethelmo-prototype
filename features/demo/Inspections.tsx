@@ -232,7 +232,7 @@ export function Inspections() {
   );
 }
 function ActionCard({ item }: { item: ActionItem }) {
-  const { state, update, notify } = useDemo();
+  const { state, update, notify, storageScope } = useDemo();
   const [note, setNote] = useState("");
   const [file, setFile] = useState<File>();
   const [busy, setBusy] = useState(false);
@@ -270,7 +270,7 @@ function ActionCard({ item }: { item: ActionItem }) {
             const role = state.role;
             setBusy(true);
             try {
-              const attachment = file ? await saveFile(file) : undefined;
+              const attachment = file ? await saveFile(file, storageScope) : undefined;
               const saved = update(
                 (s) => {
                   const current = s.actions.find((a) => a.id === item.id)!;

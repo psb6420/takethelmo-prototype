@@ -16,6 +16,13 @@ function redirectToLogin(request: NextRequest) {
 
 // 1차 방어선일 뿐이다. 역할 검사는 각 page/route의 requireRole과 DB RLS가 담당한다.
 export async function updateSession(request: NextRequest) {
+  const isDemo = request.nextUrl.pathname === "/demo" || request.nextUrl.pathname.startsWith("/demo/");
+  if (isDemo && !request.cookies.get("takethelmo-local-session")?.value) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/prototype-login"; url.search = "";
+    url.searchParams.set("next", request.nextUrl.pathname + request.nextUrl.search);
+    return NextResponse.redirect(url);
+  }
   const isProtected = PROTECTED_PREFIXES.some((p) => request.nextUrl.pathname.startsWith(p));
 
   // 환경변수가 없으면 보호 경로는 열어 주지 않는다.

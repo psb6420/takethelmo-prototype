@@ -92,7 +92,7 @@ export function Timeline({ items }: { items: History[] }) {
   );
 }
 export function Attachment({ file }: { file: FileRef }) {
-  const { notify } = useDemo();
+  const { notify, storageScope } = useDemo();
   return (
     <Button
       variant="outline"
@@ -100,7 +100,7 @@ export function Attachment({ file }: { file: FileRef }) {
       className="max-w-full text-left"
       onClick={async () => {
         try {
-          await downloadFile(file);
+          await downloadFile(file, storageScope);
         } catch (e) {
           notify((e as Error).message, true);
         }

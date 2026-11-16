@@ -7,13 +7,24 @@
 > **AI 로 개발을 이어갈 때**: `AGENTS.md` → `docs/02-current-status.md` → `docs/03-roadmap.md` 순서로 읽게 한다. 명세 모음은 `docs/README.md`.
 > 변경 내역은 `CHANGELOG.md`.
 
+## 로컬 계정 로그인 (2026-11-17)
+
+`npm ci`와 `npm run dev` 실행 후 `/prototype-login`에서 이름·이메일·비밀번호로 회원가입합니다. 가입 직후 로그인되며, 다음 방문에는 이메일과 비밀번호로 로그인합니다. 데모의 모든 화면은 로컬 로그인을 요구합니다. 포털의 기존 Supabase 로그인(`/login`)은 별도입니다.
+
+- Node.js **22.13 이상** 필요. SQLite 계정 DB는 최초 인증 요청 시 `data/local-auth.sqlite`에 자동 생성됩니다. `LOCAL_AUTH_DB_PATH`로 경로를 지정할 수 있습니다.
+- 비밀번호는 무작위 salt와 scrypt 해시로 저장하며, 세션은 만료되는 HttpOnly 쿠키와 DB의 토큰 해시로 확인합니다. DB 파일은 Git에서 제외됩니다.
+- 상단에 실제 로그인 이름과 로그아웃 버튼을 표시합니다. 체험 역할 전환은 해당 계정의 가상 시나리오를 살펴보는 기능이며 운영 권한을 부여하지 않습니다.
+- 체험 기록(localStorage)과 첨부파일(IndexedDB)은 계정 ID별로 나뉩니다. 계정 DB만 서버에 저장하며 업무 기록의 서버 동기화·다른 계정 간 공유는 구현하지 않았습니다. 기존 익명 체험 데이터는 자동으로 어느 계정에도 귀속하지 않습니다.
+- 로컬 실행 또는 지속 가능한 디스크가 있는 Node 서버용입니다. 읽기 전용·일시적 파일 시스템을 쓰는 서버리스 배포에는 외부 DB로 전환해야 합니다.
+- `npm test`는 임시 메모리 DB, E2E는 `LOCAL_AUTH_DB_PATH`로 지정한 테스트 DB 사용을 권장합니다. 비밀번호 분실 시 자동 메일 재설정은 아직 제공하지 않습니다.
+
 ## 시작하기
 ```bash
 npm ci
 npm run dev
 ```
 
-Node.js 22 이상이 필요합니다. 실행 후 [http://localhost:3000/demo](http://localhost:3000/demo)를 열면 됩니다. `/`도 데모로 이동합니다. 브라우저 체험에는 `.env.local`을 만들 필요가 없습니다.
+Node.js 22.13 이상이 필요합니다. 실행 후 [http://localhost:3000/demo](http://localhost:3000/demo)를 열면 됩니다. `/`도 데모로 이동합니다. 브라우저 체험에는 `.env.local`을 만들 필요가 없습니다.
 
 원본 포털은 `/portal`에 있습니다. 실제 로그인·공지 관리·관리자 기능을 연결할 때만 `.env.example`을 `.env.local`로 복사하고 아래 Supabase 설정을 적용합니다. 로그인과 `/admin`은 환경변수가 없으면 열리지 않습니다(fail closed).
 

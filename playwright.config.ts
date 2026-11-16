@@ -5,6 +5,7 @@ export default defineConfig({
   testDir: "./e2e",
   workers: 2,
   webServer: {
+    env: { LOCAL_AUTH_DB_PATH: process.env.LOCAL_AUTH_DB_PATH || "data/e2e-auth.sqlite" },
     command: `npm run start -- --port ${port}`,
     url: `http://127.0.0.1:${port}`,
     reuseExistingServer: false,
